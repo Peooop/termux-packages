@@ -42,7 +42,7 @@ termux_step_massage() {
 		set -e -o pipefail
 	fi
 
-	if [ "$TERMUX_PKG_NO_ELF_CLEANER" != "true" ]; then
+	if [ "$TERMUX_PACKAGE_LIBRARY" = "bionic" ] && [ "$TERMUX_PKG_NO_ELF_CLEANER" != "true" ]; then
 		# Remove entries unsupported by Android's linker:
 		find . \( -path "./bin/*" -o -path "./lib/*" -o -path "./libexec/*" -o -path "./opt/*" \) -type f -print0 | xargs -r -0 \
 			"$TERMUX_ELF_CLEANER" --api-level $TERMUX_PKG_API_LEVEL
@@ -52,7 +52,11 @@ termux_step_massage() {
 		# Fix shebang paths:
 		while IFS= read -r -d '' file; do
 			if head -c 100 "$file" | head -n 1 | grep -E "^#!.*/bin/.*" | grep -q -E -v "^#! ?/system"; then
-				sed --follow-symlinks -i -E "1 s@^#\!(.*)/bin/(.*)@#\!$TERMUX_PREFIX/bin/\2@" "$file"
+				if [ "$TERMUX_PACKAGE_LIBRARY" = "bionic" ]; then
+					sed --follow-symlinks -i -E "1 s@^#\!(.*)/bin/(.*)@#\!$TERMUX_PREFIX/bin/\2@" "$file"
+				elif [ "$TERMUX_PACKAGE_LIBRARY" = "glibc" ]; then
+					sed --follow-symlinks -i -E "1 s@^#\!(.*)/bin/(.*)@#\!$TERMUX_PREFIX_CLASSICAL/bin/\2@" "$file"
+				fi
 			fi
 		done < <(find -L . -type f -print0)
 	fi
@@ -120,7 +124,7 @@ termux_step_massage() {
 	# Check so that package is not affected by
 	# https://github.com/android/ndk/issues/1614, or
 	# https://github.com/termux/termux-packages/issues/9944
-	if [ -d "lib" ]; then
+	if [ "$TERMUX_PACKAGE_LIBRARY" = "bionic" ] && [ -d "lib" ]; then
 		SYMBOLS="$($READELF -s $($TERMUX_HOST_PLATFORM-clang -print-libgcc-file-name) | grep "FUNC    GLOBAL HIDDEN" | awk '{print $8}')"
 		SYMBOLS+=" $(echo libandroid_{sem_{open,close,unlink},shm{ctl,get,at,dt}})"
 		SYMBOLS+=" $(echo backtrace{,_symbols{,_fd}})"

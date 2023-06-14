@@ -11,7 +11,11 @@ termux_step_setup_build_folders() {
 		   [ "$TERMUX_ON_DEVICE_BUILD" = false ]; then
 		# Remove all previously extracted/built files from
 		# $TERMUX_PREFIX:
-		rm -rf $TERMUX_PREFIX
+		if [ "$TERMUX_PACKAGE_LIBRARY" = "bionic" ]; then
+			rm -rf $TERMUX_PREFIX
+		elif [ "$TERMUX_PACKAGE_LIBRARY" = "glibc" ]; then
+			rm -fr $TERMUX_PREFIX_CLASSICAL
+		fi
 		rm -f $TERMUX_BUILT_PACKAGES_DIRECTORY/*
 	fi
 
@@ -34,6 +38,11 @@ termux_step_setup_build_folders() {
 		 "$TERMUX_PKG_PACKAGEDIR" \
 		 "$TERMUX_PKG_TMPDIR" \
 		 "$TERMUX_PKG_CACHEDIR" \
-		 "$TERMUX_PKG_MASSAGEDIR" \
-		 $TERMUX_PREFIX/{bin,etc,lib,libexec,share,share/LICENSES,tmp,include}
+		 "$TERMUX_PKG_MASSAGEDIR"
+	if [ "$TERMUX_PACKAGE_LIBRARY" = "bionic" ]; then
+		mkdir -p $TERMUX_PREFIX/{bin,etc,lib,libexec,share,share/LICENSES,tmp,include}
+	elif [ "$TERMUX_PACKAGE_LIBRARY" = "glibc" ]; then
+		mkdir -p $TERMUX_PREFIX/{bin,etc,lib,share,share/LICENSES,include}
+		mkdir -p $TERMUX_PREFIX_CLASSICAL/{bin,etc,tmp}
+	fi
 }

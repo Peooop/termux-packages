@@ -94,7 +94,7 @@ class TermuxPackage(object):
         self.antideps = parse_build_file_antidependencies(build_sh_path)
         self.excluded_arches = parse_build_file_excluded_arches(build_sh_path)
 
-        if os.getenv('TERMUX_ON_DEVICE_BUILD') == "true":
+        if os.getenv('TERMUX_ON_DEVICE_BUILD') == "true" and os.getenv('TERMUX_PACKAGE_LIBRARY') == "bionic":
             always_deps = ['libc++']
             for dependency_name in always_deps:
                 if dependency_name not in self.deps and self.name not in always_deps:

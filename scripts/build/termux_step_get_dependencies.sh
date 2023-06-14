@@ -50,7 +50,7 @@ termux_step_get_dependencies() {
 				fi
 			fi
 			if $build_dependency; then
-				TERMUX_BUILD_IGNORE_LOCK=true ./build-package.sh -I $(test "${TERMUX_FORCE_BUILD_DEPENDENCIES}" = "true" && echo "-F" || true) --format $TERMUX_PACKAGE_FORMAT "${PKG_DIR}"
+				TERMUX_BUILD_IGNORE_LOCK=true ./build-package.sh -I $(test "${TERMUX_FORCE_BUILD_DEPENDENCIES}" = "true" && echo "-F" || true) --format $TERMUX_PACKAGE_FORMAT --library $TERMUX_PACKAGE_LIBRARY "${PKG_DIR}"
 				continue
 			fi
 			termux_add_package_to_built_packages_list "$PKG"
@@ -92,7 +92,7 @@ termux_step_get_dependencies() {
 			else
 				[ ! "$TERMUX_QUIET_BUILD" = true ] && echo "Building dependency $PKG if necessary..."
 			fi
-			TERMUX_BUILD_IGNORE_LOCK=true ./build-package.sh -s $(test "${TERMUX_FORCE_BUILD_DEPENDENCIES}" = "true" && echo "-F" || true) --format $TERMUX_PACKAGE_FORMAT "${PKG_DIR}"
+			TERMUX_BUILD_IGNORE_LOCK=true ./build-package.sh -s $(test "${TERMUX_FORCE_BUILD_DEPENDENCIES}" = "true" && echo "-F" || true) --format $TERMUX_PACKAGE_FORMAT --library $TERMUX_PACKAGE_LIBRARY "${PKG_DIR}"
 		done<<<$(./scripts/buildorder.py "$TERMUX_PKG_BUILDER_DIR" $TERMUX_PACKAGES_DIRECTORIES || echo "ERROR")
 	fi
 }

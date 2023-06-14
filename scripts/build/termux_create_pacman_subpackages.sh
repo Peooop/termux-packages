@@ -13,6 +13,9 @@ termux_create_pacman_subpackages() {
 		test ! -f "$subpackage" && continue
 		local SUB_PKG_NAME
 		SUB_PKG_NAME=$(basename "$subpackage" .subpackage.sh)
+		if [ "$TERMUX_PACKAGE_LIBRARY" = "glibc" ] && ! $(echo "${SUB_PKG_NAME}" | grep -q -e "glibc"); then
+			SUB_PKG_NAME="${SUB_PKG_NAME}-glibc"
+		fi
 		# Default value is same as main package, but sub package may override:
 		local TERMUX_SUBPKG_PLATFORM_INDEPENDENT=$TERMUX_PKG_PLATFORM_INDEPENDENT
 		local SUB_PKG_DIR=$TERMUX_TOPDIR/$TERMUX_PKG_NAME/subpackages/$SUB_PKG_NAME
